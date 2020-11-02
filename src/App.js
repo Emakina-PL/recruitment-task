@@ -4,7 +4,7 @@ import './App.scss';
 class App extends React.Component {
   constructor() {
     super();
-    this.state = { searchresults: {} };
+    this.state = { searchresults: {}, displayspinner: false };
     this.searchinputref = React.createRef();
   }
 
@@ -13,6 +13,7 @@ class App extends React.Component {
     xhttp.onreadystatechange = function () {
       if (xhttp.readyState === 4 && xhttp.status === 200) {
         this.setState({ searchresults: JSON.parse(xhttp.responseText) });
+        this.setState({ displayspinner: false });
       }
     }.bind(this);
     xhttp.open("GET", `https://swapi.dev/api/people/?search=${persontosearch}`);
@@ -32,13 +33,20 @@ class App extends React.Component {
 
         <div className="search">
           <input type="text" ref={this.searchinputref} />
-          <button onClick={() => this.searchperson(this.searchinputref.current.value)}>
+          <button onClick={() => {
+            this.searchperson(this.searchinputref.current.value);
+            this.setState({ searchresults: {} })
+            this.setState({ displayspinner: true });
+          }}
+          >
             Search
           </button>
         </div>
 
         <div className="search-results">
-          {this.state.searchresults.results?.map(result => {
+          {this.state.displayspinner && <div className="lds-dual-ring"></div>}
+
+          {this.state.searchresults.results && this.state.searchresults.results.map(result => {
             console.log(result);
 
             return (
